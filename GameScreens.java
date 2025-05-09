@@ -1,12 +1,8 @@
-package sldl;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.RoundRectangle2D;
-import java.io.File;
-import java.io.IOException;
 
 public class GameScreens extends JPanel implements KeyListener, MouseListener, ActionListener {
     
@@ -19,8 +15,8 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
     private int score = 0;
     
     // 화면 크기
-    private final int WIDTH = 600;  // 가로 600픽셀
-    private final int HEIGHT = 800; // 세로 800픽셀
+    private final int WIDTH = 600;  
+    private final int HEIGHT = 800;
     
     // 재생 버튼 속성
     private Ellipse2D.Double playButton;
@@ -33,9 +29,8 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
         new Color(36, 59, 85)   // 미디엄 남색
     };
     
-    // 폰트 설정
-    private Font customFont;
-    private Font defaultFont;
+    // 기본 폰트
+    private Font gameFont;
     
     // 파티클 효과를 위한 클래스
     private class Particle {
@@ -127,8 +122,8 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
         int buttonY = HEIGHT / 2 + 30;
         playButton = new Ellipse2D.Double(buttonX, buttonY, BUTTON_SIZE, BUTTON_SIZE);
         
-        // 폰트 초기화
-        initFonts();
+        // 기본 폰트 설정
+        gameFont = new Font("SansSerif", Font.BOLD, 20);
         
         // 별 초기화
         for (int i = 0; i < stars.length; i++) {
@@ -138,39 +133,6 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
         // 게임 타이머 시작
         timer = new Timer(DELAY, this);
         timer.start();
-    }
-    
-    private void initFonts() {
-        try {
-            // 메이플스토리 폰트 로드 시도
-            File fontFile = new File("./fonts/메이플스토리.ttf");  // 폰트 파일 경로
-            
-            if (fontFile.exists()) {
-                // 폰트 파일이 존재하면 로드
-                customFont = Font.createFont(Font.TRUETYPE_FONT, fontFile).deriveFont(20f);
-                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                ge.registerFont(customFont);
-                System.out.println("Maplestory Bold 폰트를 로드했습니다.");
-            } else {
-                // 폰트 파일이 없으면 기본 폰트 사용
-                System.out.println("폰트 파일을 찾을 수 없습니다: " + fontFile.getAbsolutePath());
-                customFont = new Font("SansSerif", Font.BOLD, 20);
-            }
-        } catch (IOException | FontFormatException e) {
-            // 폰트 로드 실패 시 기본 폰트 사용
-            System.err.println("폰트 로드 실패: " + e.getMessage());
-            customFont = new Font("SansSerif", Font.BOLD, 20);
-        }
-        
-        // 기본 폰트 설정 (폰트 로드 실패 시 대체용)
-        defaultFont = new Font("SansSerif", Font.PLAIN, 20);
-        
-        // 콘솔에 현재 사용 가능한 모든 폰트 출력 (디버깅용)
-        String[] fontNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-        System.out.println("사용 가능한 폰트:");
-        for (String fontName : fontNames) {
-            System.out.println(fontName);
-        }
     }
     
     @Override
@@ -224,7 +186,7 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
         g.draw(titlePanel);
         
         // 타이틀 텍스트
-        Font titleFont = customFont.deriveFont(Font.BOLD, 48);
+        Font titleFont = gameFont.deriveFont(Font.BOLD, 48);
         g.setFont(titleFont);
         
         // 그라데이션 텍스트
@@ -287,7 +249,7 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
         g.fillPolygon(xPoints, yPoints, 3);
         
         // 버튼 설명 텍스트
-        g.setFont(customFont.deriveFont(Font.BOLD, 18));
+        g.setFont(gameFont.deriveFont(Font.BOLD, 18));
         String buttonText = "게임 시작";
         FontMetrics fm = g.getFontMetrics();
         int textX = (int)(playButton.x + (playButton.width - fm.stringWidth(buttonText)) / 2);
@@ -340,14 +302,14 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
         
         // 텍스트
         g.setColor(Color.WHITE);
-        g.setFont(customFont.deriveFont(Font.PLAIN, 20));
+        g.setFont(gameFont.deriveFont(Font.PLAIN, 20));
         
         String placeholder = "여기에 게임 화면이 표시됩니다";
         FontMetrics fm = g.getFontMetrics();
         g.drawString(placeholder, (WIDTH - fm.stringWidth(placeholder)) / 2, HEIGHT / 2 - 10);
         
         String escText = "ESC를 눌러 게임 오버 화면으로 이동";
-        g.setFont(customFont.deriveFont(Font.PLAIN, 16));
+        g.setFont(gameFont.deriveFont(Font.PLAIN, 16));
         fm = g.getFontMetrics();
         g.drawString(escText, (WIDTH - fm.stringWidth(escText)) / 2, HEIGHT / 2 + 20);
     }
@@ -369,8 +331,7 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
         g.draw(headerPanel);
         
         // "게임 오버" 텍스트
-        Font gameOverFont = customFont.deriveFont(Font.BOLD, 40);
-        g.setFont(gameOverFont);
+        g.setFont(gameFont.deriveFont(Font.BOLD, 40));
         g.setColor(Color.WHITE);
         
         String gameOver = "게임 오버";
@@ -388,8 +349,7 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
         g.draw(scorePanel);
         
         // 최종 점수 표시
-        Font scoreFont = customFont.deriveFont(Font.BOLD, 30);
-        g.setFont(scoreFont);
+        g.setFont(gameFont.deriveFont(Font.BOLD, 30));
         g.setColor(new Color(255, 215, 0)); // 골드
         
         String finalScore = "최종 점수: " + score;
@@ -415,8 +375,7 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
         g.draw(restartButton);
         
         // 재시작 텍스트
-        Font restartFont = customFont.deriveFont(Font.BOLD, 20);
-        g.setFont(restartFont);
+        g.setFont(gameFont.deriveFont(Font.BOLD, 20));
         g.setColor(Color.WHITE);
         
         String restartText = "SPACE 키를 눌러 다시 시작";
@@ -524,48 +483,34 @@ public class GameScreens extends JPanel implements KeyListener, MouseListener, A
     }
     
     @Override
-    public void mousePressed(MouseEvent e) {
-        // 사용하지 않음
-    }
+    public void mousePressed(MouseEvent e) { }
     
     @Override
-    public void mouseReleased(MouseEvent e) {
-        // 사용하지 않음
-    }
+    public void mouseReleased(MouseEvent e) { }
     
     @Override
-    public void mouseEntered(MouseEvent e) {
-        // 사용하지 않음
-    }
+    public void mouseEntered(MouseEvent e) { }
     
     @Override
-    public void mouseExited(MouseEvent e) {
-        // 사용하지 않음
-    }
+    public void mouseExited(MouseEvent e) { }
     
     @Override
-    public void keyReleased(KeyEvent e) {
-        // 사용하지 않음
-    }
+    public void keyReleased(KeyEvent e) { }
     
     @Override
-    public void keyTyped(KeyEvent e) {
-        // 사용하지 않음
-    }
+    public void keyTyped(KeyEvent e) { }
     
     public static void main(String[] args) {
-        // 폰트 관련 디버깅 옵션 설정
-        System.setProperty("awt.useSystemAAFontSettings", "on");
-        System.setProperty("swing.aatext", "true");
-        
-        JFrame frame = new JFrame("블록 깨기 게임");
-        GameScreens game = new GameScreens();
-        
-        frame.add(game);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("블록 깨기 게임");
+            GameScreens game = new GameScreens();
+            
+            frame.add(game);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setResizable(false);
+            frame.pack();
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
     }
 }
